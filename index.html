@@ -1,0 +1,1603 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🐾 寵物拍貼樂 (Pet Deco Studio)</title>
+  <style>
+    :root {
+      --sky-blue: #98C1D9;
+      --sky-blue-light: #E0FBFC;
+      --mint-green: #9FD8CB;
+      --mint-green-dark: #6BA8A0;
+      --morandi-bg: #EAEFF2;
+      --morandi-panel: #F7FAF9;
+      --text-main: #2D3A45;
+      --text-muted: #6B7C85;
+      --border-color: #D3E0EA;
+      --accent-coral: #EE6C4D;
+      --accent-hover: #3D5A80;
+      --shadow-sm: 0 2px 8px rgba(45, 58, 69, 0.06);
+      --shadow-md: 0 8px 24px rgba(45, 58, 69, 0.1);
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang TC", "Microsoft JhengHei", sans-serif;
+      background-color: var(--morandi-bg);
+      color: var(--text-main);
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* 頂部橫幅 (Header) */
+    header {
+      height: 64px;
+      background-color: #FFFFFF;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      box-shadow: var(--shadow-sm);
+      z-index: 100;
+      flex-shrink: 0;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text-main);
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .badge {
+      font-size: 0.72rem;
+      font-weight: 600;
+      background: linear-gradient(135deg, var(--sky-blue), var(--mint-green));
+      color: #FFFFFF;
+      padding: 3px 8px;
+      border-radius: 12px;
+      letter-spacing: 0.3px;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn {
+      appearance: none;
+      border: 1px solid transparent;
+      padding: 8px 18px;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .btn-secondary {
+      background-color: #FFFFFF;
+      border-color: var(--border-color);
+      color: var(--text-main);
+    }
+
+    .btn-secondary:hover {
+      background-color: #F0F4F8;
+      border-color: var(--sky-blue);
+      transform: translateY(-1px);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--sky-blue), var(--mint-green-dark));
+      color: #FFFFFF;
+      box-shadow: 0 4px 12px rgba(107, 168, 160, 0.25);
+    }
+
+    .btn-primary:hover {
+      box-shadow: 0 6px 16px rgba(107, 168, 160, 0.38);
+      filter: brightness(1.05);
+      transform: translateY(-1px);
+    }
+
+    .btn-danger-outline {
+      background-color: #FFF;
+      border-color: #F8D7DA;
+      color: #DC3545;
+    }
+
+    .btn-danger-outline:hover {
+      background-color: #F8D7DA;
+      transform: translateY(-1px);
+    }
+
+    /* 主要版面配置：三欄式 */
+    .app-container {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+    }
+
+    /* 左側素材抽屜 (Sidebar Left) */
+    .sidebar-left {
+      width: 290px;
+      background-color: var(--morandi-panel);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+    }
+
+    .tab-bar {
+      display: flex;
+      border-bottom: 1px solid var(--border-color);
+      background-color: #FFFFFF;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 14px 0;
+      text-align: center;
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      position: relative;
+      transition: color 0.2s;
+    }
+
+    .tab-btn.active {
+      color: var(--text-main);
+    }
+
+    .tab-btn.active::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 15%;
+      width: 70%;
+      height: 3px;
+      background: linear-gradient(90deg, var(--sky-blue), var(--mint-green));
+      border-radius: 3px;
+    }
+
+    .items-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+    }
+
+    .grid-list {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .asset-card {
+      background-color: #FFFFFF;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 12px 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.2, 0, 0.2, 1);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+    }
+
+    .asset-card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-sm);
+      border-color: var(--sky-blue);
+    }
+
+    .asset-card.active-border {
+      border-color: var(--mint-green-dark);
+      background-color: #F0FBF9;
+      box-shadow: 0 0 0 2px var(--mint-green-dark);
+    }
+
+    .asset-thumb {
+      width: 60px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .asset-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-main);
+      text-align: center;
+    }
+
+    /* 中央主工作區 (Workspace) */
+    .workspace {
+      flex: 1;
+      background-color: #DDE5EB;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      padding: 24px;
+    }
+
+    .canvas-wrapper {
+      position: relative;
+      box-shadow: var(--shadow-md);
+      border-radius: 6px;
+      overflow: visible;
+      line-height: 0;
+      background-color: #FFF;
+      cursor: default;
+    }
+
+    #mainCanvas {
+      display: block;
+      max-width: calc(100vw - 640px);
+      max-height: calc(100vh - 120px);
+      width: auto;
+      height: auto;
+      object-fit: contain;
+      border-radius: 4px;
+    }
+
+    .drop-overlay {
+      position: absolute;
+      inset: 0;
+      background-color: rgba(152, 193, 217, 0.85);
+      border: 3px dashed #FFFFFF;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 12px;
+      color: #FFFFFF;
+      font-size: 1.2rem;
+      font-weight: 700;
+      z-index: 50;
+      pointer-events: none;
+    }
+
+    .drop-overlay.active {
+      display: flex;
+    }
+
+    /* 右側屬性與提示區 (Sidebar Right) */
+    .sidebar-right {
+      width: 290px;
+      background-color: var(--morandi-panel);
+      border-left: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      padding: 16px;
+      flex-shrink: 0;
+      overflow-y: auto;
+    }
+
+    .card {
+      background-color: #FFFFFF;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+    }
+
+    .card-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .empty-state {
+      border: 1.5px dashed var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 24px 12px;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      line-height: 1.5;
+    }
+
+    .prop-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      font-size: 0.85rem;
+    }
+
+    .prop-label {
+      color: var(--text-muted);
+    }
+
+    .prop-value {
+      font-weight: 600;
+      color: var(--text-main);
+      background-color: var(--morandi-bg);
+      padding: 2px 8px;
+      border-radius: 6px;
+    }
+
+    .guide-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      line-height: 1.45;
+    }
+
+    .guide-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .guide-list li span.dot {
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--sky-blue);
+      margin-top: 6px;
+      flex-shrink: 0;
+    }
+
+    #fileInput {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 頂部橫幅 (Header) -->
+  <header>
+    <div class="brand">
+      <div class="brand-title">🐾 寵物拍貼樂 <span class="badge">v1.0 PRD 版</span></div>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-secondary" id="btnReplaceImg">
+        📷 替換照片
+      </button>
+      <button class="btn btn-secondary" id="btnClearCanvas">
+        🧹 清空貼圖
+      </button>
+      <button class="btn btn-primary" id="btnExport">
+        ✨ 匯出高畫質照片
+      </button>
+    </div>
+  </header>
+
+  <input type="file" id="fileInput" accept="image/*">
+
+  <!-- 主體區域 -->
+  <div class="app-container">
+    <!-- 左側素材抽屜 (Sidebar Left) -->
+    <aside class="sidebar-left">
+      <div class="tab-bar">
+        <div class="tab-btn active" id="tabStickers" data-target="stickersList">可愛貼圖</div>
+        <div class="tab-btn" id="tabBorders" data-target="bordersList">邊框樣式</div>
+      </div>
+      <div class="items-container">
+        <!-- 貼圖列表 -->
+        <div class="grid-list" id="stickersList">
+          <!-- 項目由 JS 渲染 -->
+        </div>
+        <!-- 邊框列表 -->
+        <div class="grid-list" id="bordersList" style="display: none;">
+          <!-- 項目由 JS 渲染 -->
+        </div>
+      </div>
+    </aside>
+
+    <!-- 中央主工作區 (Workspace) -->
+    <main class="workspace" id="workspace">
+      <div class="canvas-wrapper" id="canvasWrapper">
+        <canvas id="mainCanvas"></canvas>
+      </div>
+      <div class="drop-overlay" id="dropOverlay">
+        <div style="font-size: 2.5rem;">🐾</div>
+        <div>釋放滑鼠以上傳寵物相片</div>
+      </div>
+    </main>
+
+    <!-- 右側屬性與提示區 (Sidebar Right) -->
+    <aside class="sidebar-right">
+      <!-- 目前選取狀態卡片 -->
+      <div class="card">
+        <div class="card-title">🎯 目前選取狀態</div>
+        <div id="noSelection" class="empty-state">
+          未選取任何貼圖<br>
+          <span style="font-size: 0.78rem; opacity: 0.8;">點選畫布或左側素材開始裝飾</span>
+        </div>
+        <div id="selectionProps" style="display: none;">
+          <div class="prop-row">
+            <span class="prop-label">配件名稱</span>
+            <span class="prop-value" id="propName">派對小尖帽</span>
+          </div>
+          <div class="prop-row">
+            <span class="prop-label">縮放比例</span>
+            <span class="prop-value" id="propScale">100%</span>
+          </div>
+          <div class="prop-row">
+            <span class="prop-label">旋轉角度</span>
+            <span class="prop-value" id="propRotation">0°</span>
+          </div>
+          <div style="margin-top: 14px;">
+            <button class="btn btn-danger-outline" style="width: 100%; justify-content: center;" id="btnDeleteSelected">
+              🗑️ 刪除選取貼圖
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 操作指南卡片 -->
+      <div class="card">
+        <div class="card-title">📖 操作指南</div>
+        <ul class="guide-list">
+          <li><span class="dot"></span>點擊左側貼圖加入中央畫布</li>
+          <li><span class="dot"></span>拖曳飾品可任意平移並橫跨相框邊界</li>
+          <li><span class="dot"></span>拖曳飾品<b>右下藍點</b>等比例縮放</li>
+          <li><span class="dot"></span>拖曳飾品<b>頂部綠點</b>360° 靈活旋轉</li>
+          <li><span class="dot"></span>點擊飾品<b>右上紅點</b>或按 Delete 鍵刪除</li>
+          <li><span class="dot"></span>可直接拖放電腦相片進畫布換相片</li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <script>
+    /* ==========================================================================
+       1. 全域變數與純向量向量貼圖、邊框定義
+       ========================================================================== */
+    const state = {
+      image: null,           // 原始相片 Image 物件
+      imgWidth: 800,
+      imgHeight: 800,
+      currentBorder: 'none', // 目前邊框
+      stickers: [],          // 畫布上的貼圖實例
+      selectedIndex: -1,     // 選取中的貼圖索引
+      transforming: null     // 當前變形操作狀態 ('move', 'rotate', 'scale')
+    };
+
+    const canvas = document.getElementById('mainCanvas');
+    const ctx = canvas.getContext('2d');
+    const workspace = document.getElementById('workspace');
+    const dropOverlay = document.getElementById('dropOverlay');
+
+    // 向量貼圖庫定義 (純 Canvas 向量繪製，不依賴外部圖片)
+    const STICKER_DEFS = {
+      paw: {
+        id: 'paw',
+        name: '圓潤軟萌肉球',
+        baseWidth: 120,
+        baseHeight: 110,
+        draw(ctx) {
+          ctx.save();
+          // 粉紫柔和漸層
+          const grad = ctx.createLinearGradient(-40, -40, 40, 40);
+          grad.addColorStop(0, '#FFB6C1');
+          grad.addColorStop(1, '#D8B4E2');
+
+          // 中央主大肉墊 (扁圓飽滿)
+          ctx.fillStyle = grad;
+          ctx.beginPath();
+          ctx.ellipse(0, 15, 38, 28, 0, 0, Math.PI * 2);
+          ctx.fill();
+
+          // 4 顆飽滿小腳趾
+          const toes = [
+            { x: -35, y: -20, rx: 11, ry: 15, rot: -0.25 },
+            { x: -13, y: -32, rx: 12, ry: 16, rot: -0.08 },
+            { x: 13, y: -32, rx: 12, ry: 16, rot: 0.08 },
+            { x: 35, y: -20, rx: 11, ry: 15, rot: 0.25 }
+          ];
+          toes.forEach(t => {
+            ctx.beginPath();
+            ctx.ellipse(t.x, t.y, t.rx, t.ry, t.rot, 0, Math.PI * 2);
+            ctx.fill();
+          });
+
+          // 柔和白色高光
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.45)';
+          ctx.beginPath();
+          ctx.ellipse(-10, 8, 14, 8, -0.2, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        }
+      },
+      party_hat: {
+        id: 'party_hat',
+        name: '派對小尖帽',
+        baseWidth: 120,
+        baseHeight: 130,
+        draw(ctx) {
+          ctx.save();
+          // 三角帽子主體
+          ctx.save();
+          ctx.beginPath();
+          ctx.moveTo(0, -50);
+          ctx.lineTo(40, 35);
+          ctx.lineTo(-40, 35);
+          ctx.closePath();
+          ctx.clip();
+
+          // 粉藍雙色條紋底色
+          ctx.fillStyle = '#FFB5C5';
+          ctx.fillRect(-50, -60, 100, 110);
+
+          ctx.fillStyle = '#A8DADC';
+          for (let i = -70; i < 70; i += 22) {
+            ctx.beginPath();
+            ctx.moveTo(i, -60);
+            ctx.lineTo(i + 14, -60);
+            ctx.lineTo(i - 20, 50);
+            ctx.lineTo(i - 34, 50);
+            ctx.fill();
+          }
+          ctx.restore();
+
+          // 頂端鵝黃小毛球
+          ctx.fillStyle = '#FFE66D';
+          ctx.beginPath();
+          ctx.arc(0, -52, 13, 0, Math.PI * 2);
+          ctx.fill();
+
+          // 帽底一字排開鵝黃圓點飾球
+          ctx.fillStyle = '#FFE66D';
+          for (let x = -35; x <= 35; x += 14) {
+            ctx.beginPath();
+            ctx.arc(x, 36, 6, 0, Math.PI * 2);
+            ctx.fill();
+          }
+          ctx.restore();
+        }
+      },
+      halo: {
+        id: 'halo',
+        name: '天使光環',
+        baseWidth: 140,
+        baseHeight: 80,
+        draw(ctx) {
+          ctx.save();
+          // 白色外光暈
+          ctx.shadowColor = 'rgba(255, 230, 109, 0.8)';
+          ctx.shadowBlur = 12;
+
+          // 金黃色光環
+          ctx.lineWidth = 10;
+          ctx.strokeStyle = '#FFD166';
+          ctx.beginPath();
+          ctx.ellipse(0, 0, 52, 18, 0, 0, Math.PI * 2);
+          ctx.stroke();
+
+          // 內嵌白色高光環
+          ctx.lineWidth = 3;
+          ctx.strokeStyle = '#FFFFFF';
+          ctx.beginPath();
+          ctx.ellipse(0, 0, 50, 16, 0, 0, Math.PI * 2);
+          ctx.stroke();
+
+          // 小星芒點綴
+          ctx.shadowBlur = 0;
+          ctx.fillStyle = '#FFF9A6';
+          const drawStar = (x, y, r) => {
+            ctx.beginPath();
+            for (let i = 0; i < 4; i++) {
+              ctx.lineTo(x + Math.cos(i * Math.PI / 2) * r, y + Math.sin(i * Math.PI / 2) * r);
+              ctx.lineTo(x + Math.cos((i * 2 + 1) * Math.PI / 4) * (r * 0.35), y + Math.sin((i * 2 + 1) * Math.PI / 4) * (r * 0.35));
+            }
+            ctx.closePath();
+            ctx.fill();
+          };
+          drawStar(-42, -14, 10);
+          drawStar(46, -10, 8);
+          ctx.restore();
+        }
+      },
+      blush: {
+        id: 'blush',
+        name: '可愛腮紅雙頰',
+        baseWidth: 160,
+        baseHeight: 60,
+        draw(ctx) {
+          ctx.save();
+          const drawCheek = (cx) => {
+            const grad = ctx.createRadialGradient(cx, 0, 0, cx, 0, 24);
+            grad.addColorStop(0, 'rgba(255, 120, 140, 0.85)');
+            grad.addColorStop(0.65, 'rgba(255, 150, 170, 0.4)');
+            grad.addColorStop(1, 'rgba(255, 180, 190, 0)');
+            ctx.fillStyle = grad;
+            ctx.beginPath();
+            ctx.ellipse(cx, 0, 26, 18, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // 表面白色平行高光線
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.75)';
+            ctx.lineWidth = 2.5;
+            ctx.lineCap = 'round';
+            for (let off = -7; off <= 7; off += 7) {
+              ctx.beginPath();
+              ctx.moveTo(cx + off - 4, -5);
+              ctx.lineTo(cx + off + 4, 5);
+              ctx.stroke();
+            }
+          };
+          drawCheek(-48);
+          drawCheek(48);
+          ctx.restore();
+        }
+      },
+      bow_tie: {
+        id: 'bow_tie',
+        name: '紳士蝴蝶結',
+        baseWidth: 130,
+        baseHeight: 80,
+        draw(ctx) {
+          ctx.save();
+          // 平整對稱紅色領結雙翼
+          ctx.fillStyle = '#E63946';
+          
+          // 左翼
+          ctx.beginPath();
+          ctx.moveTo(-6, -6);
+          ctx.lineTo(-48, -26);
+          ctx.quadraticCurveTo(-54, 0, -48, 26);
+          ctx.lineTo(-6, 6);
+          ctx.closePath();
+          ctx.fill();
+
+          // 右翼
+          ctx.beginPath();
+          ctx.moveTo(6, -6);
+          ctx.lineTo(48, -26);
+          ctx.quadraticCurveTo(54, 0, 48, 26);
+          ctx.lineTo(6, 6);
+          ctx.closePath();
+          ctx.fill();
+
+          // 領結摺痕陰影
+          ctx.fillStyle = '#C1121F';
+          ctx.beginPath();
+          ctx.moveTo(-8, -4);
+          ctx.lineTo(-24, 0);
+          ctx.lineTo(-8, 4);
+          ctx.fill();
+          ctx.beginPath();
+          ctx.moveTo(8, -4);
+          ctx.lineTo(24, 0);
+          ctx.lineTo(8, 4);
+          ctx.fill();
+
+          // 中央立體感圓形裝飾結
+          ctx.fillStyle = '#E63946';
+          ctx.beginPath();
+          ctx.ellipse(0, 0, 13, 16, 0, 0, Math.PI * 2);
+          ctx.fill();
+
+          // 圓結高光
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+          ctx.beginPath();
+          ctx.ellipse(-3, -4, 5, 8, -0.2, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        }
+      },
+      heart: {
+        id: 'heart',
+        name: '愛心表情飾物',
+        baseWidth: 100,
+        baseHeight: 90,
+        draw(ctx) {
+          ctx.save();
+          ctx.fillStyle = '#FF477E';
+          ctx.beginPath();
+          // 亮紅色心形
+          const topCurveHeight = 24;
+          ctx.moveTo(0, 24);
+          ctx.bezierCurveTo(0, 16, -34, -20, -34, -8);
+          ctx.bezierCurveTo(-34, -30, 0, -32, 0, -14);
+          ctx.bezierCurveTo(0, -32, 34, -30, 34, -8);
+          ctx.bezierCurveTo(34, -20, 0, 16, 0, 24);
+          ctx.fill();
+
+          // 白色高光小弧線
+          ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
+          ctx.lineWidth = 3;
+          ctx.lineCap = 'round';
+          ctx.beginPath();
+          ctx.arc(-14, -12, 10, -Math.PI * 0.7, -Math.PI * 0.1);
+          ctx.stroke();
+          ctx.restore();
+        }
+      }
+    };
+
+    // 貼合厚邊框樣式庫
+    const BORDER_DEFS = {
+      none: {
+        id: 'none',
+        name: '無邊框',
+        draw(ctx, w, h) {
+          // 不額外繪製
+        }
+      },
+      polaroid: {
+        id: 'polaroid',
+        name: '拍立得經典白框',
+        draw(ctx, w, h) {
+          ctx.save();
+          const borderSide = Math.max(20, Math.round(w * 0.055));
+          const borderBottom = Math.max(60, Math.round(h * 0.17));
+          
+          ctx.fillStyle = '#FFFFFF';
+          // 上、左、右厚度
+          ctx.fillRect(0, 0, w, borderSide);
+          ctx.fillRect(0, 0, borderSide, h);
+          ctx.fillRect(w - borderSide, 0, borderSide, h);
+          // 底部留白手寫區
+          ctx.fillRect(0, h - borderBottom, w, borderBottom);
+
+          // 底部手寫飾線
+          ctx.strokeStyle = '#DDE2E5';
+          ctx.lineWidth = 2;
+          ctx.setLineDash([6, 6]);
+          ctx.beginPath();
+          ctx.moveTo(w * 0.25, h - borderBottom * 0.4);
+          ctx.lineTo(w * 0.75, h - borderBottom * 0.4);
+          ctx.stroke();
+          ctx.restore();
+        }
+      },
+      polka_dot: {
+        id: 'polka_dot',
+        name: '繽紛圓點邊框',
+        draw(ctx, w, h) {
+          ctx.save();
+          const thickness = Math.max(28, Math.round(w * 0.06));
+          
+          // 淡藍底厚框
+          ctx.fillStyle = '#D4EEF9';
+          ctx.fillRect(0, 0, w, thickness);
+          ctx.fillRect(0, h - thickness, w, thickness);
+          ctx.fillRect(0, 0, thickness, h);
+          ctx.fillRect(w - thickness, 0, thickness, h);
+
+          // 糖果色圓點
+          const colors = ['#FF9AA2', '#FFB7B2', '#FFDAC1', '#E2F0CB', '#B5EAD7', '#C7CEEA'];
+          const dotRadius = thickness * 0.28;
+          let colorIdx = 0;
+
+          const drawDot = (cx, cy) => {
+            ctx.fillStyle = colors[colorIdx % colors.length];
+            colorIdx++;
+            ctx.beginPath();
+            ctx.arc(cx, cy, dotRadius, 0, Math.PI * 2);
+            ctx.fill();
+          };
+
+          const step = thickness * 1.25;
+          // 上下兩邊
+          for (let x = thickness * 0.6; x <= w - thickness * 0.6; x += step) {
+            drawDot(x, thickness / 2);
+            drawDot(x, h - thickness / 2);
+          }
+          // 左右兩邊
+          for (let y = thickness * 1.5; y <= h - thickness * 1.5; y += step) {
+            drawDot(thickness / 2, y);
+            drawDot(w - thickness / 2, y);
+          }
+          ctx.restore();
+        }
+      },
+      paw_track: {
+        id: 'paw_track',
+        name: '寵物足印花邊框',
+        draw(ctx, w, h) {
+          ctx.save();
+          const thickness = Math.max(30, Math.round(w * 0.065));
+
+          // 薄荷綠厚邊
+          ctx.fillStyle = '#C8E6C9';
+          ctx.fillRect(0, 0, w, thickness);
+          ctx.fillRect(0, h - thickness, w, thickness);
+          ctx.fillRect(0, 0, thickness, h);
+          ctx.fillRect(w - thickness, 0, thickness, h);
+
+          const drawMiniPaw = (cx, cy, scale = 0.3) => {
+            ctx.save();
+            ctx.translate(cx, cy);
+            ctx.scale(scale, scale);
+            ctx.fillStyle = '#4B8B67';
+            ctx.beginPath();
+            ctx.ellipse(0, 4, 12, 9, 0, 0, Math.PI * 2);
+            ctx.fill();
+            const toes = [[-10, -6], [-4, -10], [4, -10], [10, -6]];
+            toes.forEach(([tx, ty]) => {
+              ctx.beginPath();
+              ctx.arc(tx, ty, 3.5, 0, Math.PI * 2);
+              ctx.fill();
+            });
+            ctx.restore();
+          };
+
+          const step = thickness * 1.4;
+          for (let x = thickness; x <= w - thickness; x += step) {
+            drawMiniPaw(x, thickness / 2);
+            drawMiniPaw(x, h - thickness / 2);
+          }
+          for (let y = thickness * 1.3; y <= h - thickness * 1.3; y += step) {
+            drawMiniPaw(thickness / 2, y);
+            drawMiniPaw(w - thickness / 2, y);
+          }
+          ctx.restore();
+        }
+      },
+      lace: {
+        id: 'lace',
+        name: '浪漫蕾絲小碎花',
+        draw(ctx, w, h) {
+          ctx.save();
+          const thickness = Math.max(26, Math.round(w * 0.055));
+
+          // 半圓蕾絲基底色
+          ctx.fillStyle = '#FFF3F5';
+          ctx.fillRect(0, 0, w, thickness);
+          ctx.fillRect(0, h - thickness, w, thickness);
+          ctx.fillRect(0, 0, thickness, h);
+          ctx.fillRect(w - thickness, 0, thickness, h);
+
+          // 內側細緻收邊線
+          ctx.strokeStyle = '#F7A8B8';
+          ctx.lineWidth = 2;
+          ctx.strokeRect(thickness, thickness, w - thickness * 2, h - thickness * 2);
+
+          // 半圓波浪花邊
+          ctx.fillStyle = '#FAD2E1';
+          const r = thickness * 0.35;
+          const step = r * 2.2;
+          // 內邊波浪
+          for (let x = thickness + r; x <= w - thickness - r; x += step) {
+            ctx.beginPath();
+            ctx.arc(x, thickness, r, 0, Math.PI);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(x, h - thickness, r, Math.PI, Math.PI * 2);
+            ctx.fill();
+          }
+          for (let y = thickness + r; y <= h - thickness - r; y += step) {
+            ctx.beginPath();
+            ctx.arc(thickness, y, r, -Math.PI / 2, Math.PI / 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(w - thickness, y, r, Math.PI / 2, -Math.PI / 2);
+            ctx.fill();
+          }
+          ctx.restore();
+        }
+      },
+      stamp: {
+        id: 'stamp',
+        name: '復古郵票鋸齒框',
+        draw(ctx, w, h) {
+          ctx.save();
+          const thickness = Math.max(30, Math.round(w * 0.065));
+
+          // 米白厚邊
+          ctx.fillStyle = '#F4EAD4';
+          ctx.fillRect(0, 0, w, thickness);
+          ctx.fillRect(0, h - thickness, w, thickness);
+          ctx.fillRect(0, 0, thickness, h);
+          ctx.fillRect(w - thickness, 0, thickness, h);
+
+          // 紅色復古細框線
+          ctx.strokeStyle = '#D95D39';
+          ctx.lineWidth = 2.5;
+          ctx.strokeRect(thickness * 0.75, thickness * 0.75, w - thickness * 1.5, h - thickness * 1.5);
+
+          // 邊界打孔小圓孔 (挖空效果)
+          ctx.fillStyle = '#EAEFF2'; // 主背景色
+          const holeR = thickness * 0.22;
+          const step = holeR * 2.6;
+          for (let x = holeR * 1.5; x <= w - holeR; x += step) {
+            ctx.beginPath();
+            ctx.arc(x, 0, holeR, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(x, h, holeR, 0, Math.PI * 2);
+            ctx.fill();
+          }
+          for (let y = holeR * 1.5; y <= h - holeR; y += step) {
+            ctx.beginPath();
+            ctx.arc(0, y, holeR, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(w, y, holeR, 0, Math.PI * 2);
+            ctx.fill();
+          }
+          ctx.restore();
+        }
+      }
+    };
+
+    /* ==========================================================================
+       2. 內建手繪柴犬底圖生成器 (開啟即用免載入)
+       ========================================================================== */
+    function createDefaultShibaImage() {
+      const c = document.createElement('canvas');
+      const s = 1000;
+      c.width = s;
+      c.height = s;
+      const g = c.getContext('2d');
+
+      // 背景微暖光漸層
+      const bg = g.createRadialGradient(s / 2, s / 2, 80, s / 2, s / 2, s * 0.7);
+      bg.addColorStop(0, '#FFF5EA');
+      bg.addColorStop(1, '#FFE3D1');
+      g.fillStyle = bg;
+      g.fillRect(0, 0, s, s);
+
+      // 裝飾小背景心形光斑
+      g.fillStyle = 'rgba(255, 255, 255, 0.45)';
+      for (let i = 0; i < 18; i++) {
+        g.beginPath();
+        g.arc((i * 137) % s, (i * 219) % s, 18 + (i % 5) * 8, 0, Math.PI * 2);
+        g.fill();
+      }
+
+      g.save();
+      g.translate(s / 2, s / 2 + 30);
+
+      // 柴犬胸膛
+      g.fillStyle = '#FFFFFF';
+      g.beginPath();
+      g.ellipse(0, 220, 150, 160, 0, 0, Math.PI * 2);
+      g.fill();
+
+      // 兩側柴犬耳 (外耳赤色)
+      g.fillStyle = '#E28743';
+      g.beginPath();
+      g.moveTo(-140, -100);
+      g.lineTo(-190, -260);
+      g.lineTo(-70, -180);
+      g.closePath();
+      g.fill();
+      g.beginPath();
+      g.moveTo(140, -100);
+      g.lineTo(190, -260);
+      g.lineTo(70, -180);
+      g.closePath();
+      g.fill();
+
+      // 內耳粉色
+      g.fillStyle = '#FFC4C4';
+      g.beginPath();
+      g.moveTo(-130, -110);
+      g.lineTo(-175, -235);
+      g.lineTo(-80, -170);
+      g.closePath();
+      g.fill();
+      g.beginPath();
+      g.moveTo(130, -110);
+      g.lineTo(175, -235);
+      g.lineTo(80, -170);
+      g.closePath();
+      g.fill();
+
+      // 臉部圓臉主體 (赤柴橘)
+      g.fillStyle = '#E28743';
+      g.beginPath();
+      g.ellipse(0, -30, 200, 175, 0, 0, Math.PI * 2);
+      g.fill();
+
+      // 雙頰與下巴白毛 (經典柴犬白斑)
+      g.fillStyle = '#FFFFFF';
+      g.beginPath();
+      g.ellipse(-90, 40, 95, 85, 0.2, 0, Math.PI * 2);
+      g.fill();
+      g.beginPath();
+      g.ellipse(90, 40, 95, 85, -0.2, 0, Math.PI * 2);
+      g.fill();
+      g.beginPath();
+      g.ellipse(0, 50, 90, 80, 0, 0, Math.PI * 2);
+      g.fill();
+
+      // 柴犬眉毛豆豆 (白圓點)
+      g.beginPath();
+      g.ellipse(-65, -115, 22, 16, -0.15, 0, Math.PI * 2);
+      g.fill();
+      g.beginPath();
+      g.ellipse(65, -115, 22, 16, 0.15, 0, Math.PI * 2);
+      g.fill();
+
+      // 圓滾黑眼睛
+      g.fillStyle = '#2B1E16';
+      g.beginPath();
+      g.ellipse(-75, -45, 18, 20, -0.05, 0, Math.PI * 2);
+      g.fill();
+      g.beginPath();
+      g.ellipse(75, -45, 18, 20, 0.05, 0, Math.PI * 2);
+      g.fill();
+
+      // 眼睛靈魂高光
+      g.fillStyle = '#FFFFFF';
+      g.beginPath();
+      g.arc(-70, -50, 6, 0, Math.PI * 2);
+      g.arc(70, -50, 6, 0, Math.PI * 2);
+      g.fill();
+
+      // 黑色小巧三角鼻
+      g.fillStyle = '#2B1E16';
+      g.beginPath();
+      g.moveTo(-18, 12);
+      g.lineTo(18, 12);
+      g.lineTo(0, 28);
+      g.closePath();
+      g.fill();
+
+      // 微笑人中嘴唇線
+      g.lineWidth = 4.5;
+      g.strokeStyle = '#2B1E16';
+      g.lineCap = 'round';
+      g.beginPath();
+      g.moveTo(0, 28);
+      g.lineTo(0, 42);
+      g.stroke();
+
+      g.beginPath();
+      g.arc(-18, 42, 18, 0, Math.PI * 0.85);
+      g.stroke();
+      g.beginPath();
+      g.arc(18, 42, 18, Math.PI * 0.15, Math.PI);
+      g.stroke();
+
+      // 頑皮吐出的小粉舌
+      g.fillStyle = '#FF8FA3';
+      g.beginPath();
+      g.ellipse(0, 64, 18, 20, 0, 0, Math.PI);
+      g.fill();
+
+      g.restore();
+
+      const img = new Image();
+      img.src = c.toDataURL('image/png');
+      return img;
+    }
+
+    /* ==========================================================================
+       3. 核心算圖渲染器 (Canvas 階級渲染)
+       ========================================================================== */
+    function render(targetCtx = ctx, isExport = false) {
+      if (!state.image) return;
+
+      const w = state.imgWidth;
+      const h = state.imgHeight;
+
+      if (!isExport) {
+        canvas.width = w;
+        canvas.height = h;
+      }
+
+      targetCtx.clearRect(0, 0, w, h);
+
+      // 第 1 層：底層（原始相片）
+      targetCtx.drawImage(state.image, 0, 0, w, h);
+
+      // 第 2 層：中層（貼合外框，不裁切照片）
+      if (BORDER_DEFS[state.currentBorder]) {
+        BORDER_DEFS[state.currentBorder].draw(targetCtx, w, h);
+      }
+
+      // 第 3 層：頂層（穿戴飾品，自由跨越相片與相框邊界）
+      state.stickers.forEach((sticker) => {
+        targetCtx.save();
+        targetCtx.translate(sticker.x, sticker.y);
+        targetCtx.rotate(sticker.rotation);
+        targetCtx.scale(sticker.scale, sticker.scale);
+
+        // 呼叫向量繪圖函數
+        STICKER_DEFS[sticker.type].draw(targetCtx);
+
+        targetCtx.restore();
+      });
+
+      // 第 4 層：控制層（互動提示，僅於編輯預覽時繪製）
+      if (!isExport && state.selectedIndex >= 0 && state.selectedIndex < state.stickers.length) {
+        drawControlHandles(targetCtx, state.stickers[state.selectedIndex]);
+      }
+    }
+
+    // 繪製選取虛線框與 3 顆操作控制圓點
+    function drawControlHandles(targetCtx, s) {
+      const def = STICKER_DEFS[s.type];
+      const hw = (def.baseWidth * s.scale) / 2;
+      const hh = (def.baseHeight * s.scale) / 2;
+      const handleRadius = 9;
+
+      targetCtx.save();
+      targetCtx.translate(s.x, s.y);
+      targetCtx.rotate(s.rotation);
+
+      // 外圍淡藍虛線框
+      targetCtx.strokeStyle = '#3D84B8';
+      targetCtx.lineWidth = 2;
+      targetCtx.setLineDash([5, 5]);
+      targetCtx.strokeRect(-hw, -hh, hw * 2, hh * 2);
+
+      // 旋轉手柄連接線
+      targetCtx.beginPath();
+      targetCtx.setLineDash([]);
+      targetCtx.strokeStyle = '#2A9D8F';
+      targetCtx.lineWidth = 2;
+      targetCtx.moveTo(0, -hh);
+      targetCtx.lineTo(0, -hh - 28);
+      targetCtx.stroke();
+
+      // 頂部旋轉手柄 (綠色)
+      targetCtx.fillStyle = '#2A9D8F';
+      targetCtx.beginPath();
+      targetCtx.arc(0, -hh - 28, handleRadius, 0, Math.PI * 2);
+      targetCtx.fill();
+      targetCtx.strokeStyle = '#FFFFFF';
+      targetCtx.lineWidth = 2.5;
+      targetCtx.stroke();
+
+      // 右下角縮放手柄 (藍色)
+      targetCtx.fillStyle = '#3D84B8';
+      targetCtx.beginPath();
+      targetCtx.arc(hw, hh, handleRadius, 0, Math.PI * 2);
+      targetCtx.fill();
+      targetCtx.strokeStyle = '#FFFFFF';
+      targetCtx.lineWidth = 2.5;
+      targetCtx.stroke();
+
+      // 右上角刪除手柄 (紅色)
+      targetCtx.fillStyle = '#EE6C4D';
+      targetCtx.beginPath();
+      targetCtx.arc(hw, -hh, handleRadius, 0, Math.PI * 2);
+      targetCtx.fill();
+      targetCtx.strokeStyle = '#FFFFFF';
+      targetCtx.lineWidth = 2.5;
+      targetCtx.stroke();
+
+      // 刪除按鈕中央小叉叉
+      targetCtx.strokeStyle = '#FFFFFF';
+      targetCtx.lineWidth = 2;
+      targetCtx.beginPath();
+      targetCtx.moveTo(hw - 4, -hh - 4);
+      targetCtx.lineTo(hw + 4, -hh + 4);
+      targetCtx.moveTo(hw + 4, -hh - 4);
+      targetCtx.lineTo(hw - 4, -hh + 4);
+      targetCtx.stroke();
+
+      targetCtx.restore();
+    }
+
+    /* ==========================================================================
+       4. 物件互動、旋轉、縮放與幾何計算
+       ========================================================================== */
+    function getCanvasCoordinates(e) {
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = canvas.width / rect.width;
+      const scaleY = canvas.height / rect.height;
+      return {
+        x: (e.clientX - rect.left) * scaleX,
+        y: (e.clientY - rect.top) * scaleY
+      };
+    }
+
+    // 判斷點選目標（本體或手柄）
+    function hitTest(x, y) {
+      const handleRadius = 16; // 增加感應半徑利於操作
+
+      for (let i = state.stickers.length - 1; i >= 0; i--) {
+        const s = state.stickers[i];
+        const def = STICKER_DEFS[s.type];
+        const hw = (def.baseWidth * s.scale) / 2;
+        const hh = (def.baseHeight * s.scale) / 2;
+
+        // 轉換為 sticker 本地坐標系
+        const dx = x - s.x;
+        const dy = y - s.y;
+        const cos = Math.cos(-s.rotation);
+        const sin = Math.sin(-s.rotation);
+        const lx = dx * cos - dy * sin;
+        const ly = dx * sin + dy * cos;
+
+        // 僅選取中的物件檢查控制手柄
+        if (i === state.selectedIndex) {
+          // 頂部綠色旋轉手柄 (0, -hh - 28)
+          const distRot = Math.hypot(lx - 0, ly - (-hh - 28));
+          if (distRot <= handleRadius) return { index: i, type: 'rotate' };
+
+          // 右上紅色刪除手柄 (hw, -hh)
+          const distDel = Math.hypot(lx - hw, ly - (-hh));
+          if (distDel <= handleRadius) return { index: i, type: 'delete' };
+
+          // 右下藍色縮放手柄 (hw, hh)
+          const distScale = Math.hypot(lx - hw, ly - hh);
+          if (distScale <= handleRadius) return { index: i, type: 'scale' };
+        }
+
+        // 飾品本體感應框
+        if (Math.abs(lx) <= hw + 8 && Math.abs(ly) <= hh + 8) {
+          return { index: i, type: 'move' };
+        }
+      }
+
+      return null;
+    }
+
+    // 更新右側屬性面板
+    function updatePropertiesPanel() {
+      const noSel = document.getElementById('noSelection');
+      const props = document.getElementById('selectionProps');
+
+      if (state.selectedIndex >= 0 && state.selectedIndex < state.stickers.length) {
+        const s = state.stickers[state.selectedIndex];
+        noSel.style.display = 'none';
+        props.style.display = 'block';
+
+        document.getElementById('propName').innerText = STICKER_DEFS[s.type].name;
+        document.getElementById('propScale').innerText = `${Math.round(s.scale * 100)}%`;
+        let deg = Math.round((s.rotation * 180) / Math.PI) % 360;
+        if (deg < 0) deg += 360;
+        document.getElementById('propRotation').innerText = `${deg}°`;
+      } else {
+        noSel.style.display = 'block';
+        props.style.display = 'none';
+      }
+    }
+
+    /* ==========================================================================
+       5. 互動事件監聽 (滑鼠、觸控與鍵盤)
+       ========================================================================== */
+    let startX = 0;
+    let startY = 0;
+    let startScale = 1;
+    let startAngle = 0;
+    let initialObjRotation = 0;
+
+    canvas.addEventListener('mousedown', (e) => {
+      const pos = getCanvasCoordinates(e);
+      const hit = hitTest(pos.x, pos.y);
+
+      if (hit) {
+        if (hit.type === 'delete') {
+          state.stickers.splice(hit.index, 1);
+          state.selectedIndex = -1;
+          updatePropertiesPanel();
+          render();
+          return;
+        }
+
+        state.selectedIndex = hit.index;
+        const s = state.stickers[s_idx = hit.index];
+        state.transforming = hit.type;
+
+        startX = pos.x;
+        startY = pos.y;
+
+        if (hit.type === 'rotate') {
+          // 基準角度為物件中心朝向滑鼠位置的夾角
+          startAngle = Math.atan2(pos.y - s.y, pos.x - s.x);
+          initialObjRotation = s.rotation;
+        } else if (hit.type === 'scale') {
+          startScale = s.scale;
+          const initialDist = Math.hypot(startX - s.x, startY - s.y);
+          s._initDist = initialDist;
+        }
+
+        updatePropertiesPanel();
+        render();
+      } else {
+        // 點擊空白處取消選取
+        state.selectedIndex = -1;
+        state.transforming = null;
+        updatePropertiesPanel();
+        render();
+      }
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      if (!state.transforming || state.selectedIndex === -1) return;
+
+      const pos = getCanvasCoordinates(e);
+      const s = state.stickers[state.selectedIndex];
+
+      if (state.transforming === 'move') {
+        const dx = pos.x - startX;
+        const dy = pos.y - startY;
+        s.x += dx;
+        s.y += dy;
+        startX = pos.x;
+        startY = pos.y;
+      } else if (state.transforming === 'rotate') {
+        const curAngle = Math.atan2(pos.y - s.y, pos.x - s.x);
+        s.rotation = initialObjRotation + (curAngle - startAngle);
+      } else if (state.transforming === 'scale') {
+        const curDist = Math.hypot(pos.x - s.x, pos.y - s.y);
+        const ratio = curDist / (s._initDist || 1);
+        s.scale = Math.max(0.2, Math.min(4.0, startScale * ratio));
+      }
+
+      updatePropertiesPanel();
+      render();
+    });
+
+    window.addEventListener('mouseup', () => {
+      state.transforming = null;
+    });
+
+    // 鍵盤 Delete 鍵刪除選取物件
+    window.addEventListener('keydown', (e) => {
+      if ((e.key === 'Delete' || e.key === 'Backspace') && state.selectedIndex >= 0) {
+        state.stickers.splice(state.selectedIndex, 1);
+        state.selectedIndex = -1;
+        updatePropertiesPanel();
+        render();
+      }
+    });
+
+    // 右側面板刪除按鈕
+    document.getElementById('btnDeleteSelected').addEventListener('click', () => {
+      if (state.selectedIndex >= 0) {
+        state.stickers.splice(state.selectedIndex, 1);
+        state.selectedIndex = -1;
+        updatePropertiesPanel();
+        render();
+      }
+    });
+
+    // 清空畫布貼圖按鈕
+    document.getElementById('btnClearCanvas').addEventListener('click', () => {
+      if (state.stickers.length > 0) {
+        state.stickers = [];
+        state.selectedIndex = -1;
+        updatePropertiesPanel();
+        render();
+      }
+    });
+
+    /* ==========================================================================
+       6. 影像載入、拖放支援與更換相片
+       ========================================================================== */
+    function loadNewImage(img) {
+      state.image = img;
+      state.imgWidth = img.naturalWidth || img.width;
+      state.imgHeight = img.naturalHeight || img.height;
+      // 自動重置貼圖與選取，防止物件錯位
+      state.stickers = [];
+      state.selectedIndex = -1;
+      updatePropertiesPanel();
+      render();
+    }
+
+    const fileInput = document.getElementById('fileInput');
+    document.getElementById('btnReplaceImg').addEventListener('click', () => {
+      fileInput.click();
+    });
+
+    fileInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file && file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const img = new Image();
+          img.onload = () => loadNewImage(img);
+          img.src = event.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+      fileInput.value = '';
+    });
+
+    // 拖曳相片上傳支援
+    workspace.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropOverlay.classList.add('active');
+    });
+
+    workspace.addEventListener('dragleave', (e) => {
+      e.preventDefault();
+      dropOverlay.classList.remove('active');
+    });
+
+    workspace.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropOverlay.classList.remove('active');
+      const file = e.dataTransfer.files[0];
+      if (file && file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const img = new Image();
+          img.onload = () => loadNewImage(img);
+          img.src = event.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    /* ==========================================================================
+       7. 左側素材抽屜渲染與分頁切換
+       ========================================================================== */
+    // 分頁切換
+    const tabStickers = document.getElementById('tabStickers');
+    const tabBorders = document.getElementById('tabBorders');
+    const stickersList = document.getElementById('stickersList');
+    const bordersList = document.getElementById('bordersList');
+
+    tabStickers.addEventListener('click', () => {
+      tabStickers.classList.add('active');
+      tabBorders.classList.remove('active');
+      stickersList.style.display = 'grid';
+      bordersList.style.display = 'none';
+    });
+
+    tabBorders.addEventListener('click', () => {
+      tabBorders.classList.add('active');
+      tabStickers.classList.remove('active');
+      stickersList.style.display = 'none';
+      bordersList.style.display = 'grid';
+    });
+
+    // 渲染貼圖小圖示卡片
+    function renderStickerCards() {
+      stickersList.innerHTML = '';
+      Object.values(STICKER_DEFS).forEach(def => {
+        const card = document.createElement('div');
+        card.className = 'asset-card';
+
+        const thumb = document.createElement('canvas');
+        thumb.className = 'asset-thumb';
+        thumb.width = 70;
+        thumb.height = 70;
+        const tCtx = thumb.getContext('2d');
+        tCtx.translate(35, 35);
+        tCtx.scale(0.45, 0.45);
+        def.draw(tCtx);
+
+        const title = document.createElement('div');
+        title.className = 'asset-title';
+        title.innerText = def.name;
+
+        card.appendChild(thumb);
+        card.appendChild(title);
+
+        // 點選新增貼圖：自動放置於畫布中央並進入選取狀態
+        card.addEventListener('click', () => {
+          const newSticker = {
+            type: def.id,
+            x: state.imgWidth / 2,
+            y: state.imgHeight / 2,
+            rotation: 0,
+            scale: Math.min(state.imgWidth, state.imgHeight) / 500 // 依原圖自動最適大小
+          };
+          state.stickers.push(newSticker);
+          state.selectedIndex = state.stickers.length - 1;
+          updatePropertiesPanel();
+          render();
+        });
+
+        stickersList.appendChild(card);
+      });
+    }
+
+    // 渲染邊框小圖示卡片
+    function renderBorderCards() {
+      bordersList.innerHTML = '';
+      Object.values(BORDER_DEFS).forEach(def => {
+        const card = document.createElement('div');
+        card.className = `asset-card ${state.currentBorder === def.id ? 'active-border' : ''}`;
+
+        const thumb = document.createElement('canvas');
+        thumb.className = 'asset-thumb';
+        thumb.width = 65;
+        thumb.height = 65;
+        const tCtx = thumb.getContext('2d');
+        // 底色
+        tCtx.fillStyle = '#E6EDF2';
+        tCtx.fillRect(0, 0, 65, 65);
+        // 邊框繪製
+        def.draw(tCtx, 65, 65);
+
+        const title = document.createElement('div');
+        title.className = 'asset-title';
+        title.innerText = def.name;
+
+        card.appendChild(thumb);
+        card.appendChild(title);
+
+        card.addEventListener('click', () => {
+          state.currentBorder = def.id;
+          document.querySelectorAll('#bordersList .asset-card').forEach(c => c.classList.remove('active-border'));
+          card.classList.add('active-border');
+          render();
+        });
+
+        bordersList.appendChild(card);
+      });
+    }
+
+    /* ==========================================================================
+       8. 原圖解析度 1:1 無損高畫質匯出
+       ========================================================================== */
+    document.getElementById('btnExport').addEventListener('click', () => {
+      if (!state.image) return;
+
+      // 建立背景獨立離屏 Canvas，尺寸完全對齊原圖真實解析度
+      const exportCanvas = document.createElement('canvas');
+      exportCanvas.width = state.imgWidth;
+      exportCanvas.height = state.imgHeight;
+      const exportCtx = exportCanvas.getContext('2d');
+
+      // 執行無損繪製 (isExport = true，不繪製控制圓點與輔助線)
+      render(exportCtx, true);
+
+      // 下載 PNG 檔案
+      exportCanvas.toBlob((blob) => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `PetDeco_${Date.now()}.png`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }, 'image/png');
+    });
+
+    /* ==========================================================================
+       9. 應用程式初始化
+       ========================================================================== */
+    window.addEventListener('DOMContentLoaded', () => {
+      renderStickerCards();
+      renderBorderCards();
+
+      // 載入預設手繪柴犬底圖，開箱即可體驗
+      const defaultImg = createDefaultShibaImage();
+      defaultImg.onload = () => {
+        loadNewImage(defaultImg);
+      };
+    });
+  </script>
+</body>
+</html>
